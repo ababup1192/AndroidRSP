@@ -1,4 +1,4 @@
-package org.ababup1192.rsp;
+package org.ababup1192.rsp.title;
 
 import android.content.Context;
 import android.content.Intent;
@@ -11,8 +11,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import org.ababup1192.rsp.main.GameMainActivity;
+import org.ababup1192.rsp.R;
 
-public class Title extends ActionBarActivity {
+
+public class TitleActivity extends ActionBarActivity {
 
     private Context context;
 
@@ -26,6 +29,7 @@ public class Title extends ActionBarActivity {
         SharedPreferences sharedPreferences = getSharedPreferences("high_score", Context.MODE_PRIVATE);
         TextView highScoreText = (TextView) findViewById(R.id.text_highScore);
 
+        // ハイスコアを表示
         highScoreText.setText(getString(R.string.high_score) + " " + sharedPreferences.getInt("high_score", 0));
 
         // レイアウトリソースの束縛
@@ -36,7 +40,7 @@ public class Title extends ActionBarActivity {
             // クリックイベント
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(context, GameMain.class);
+                Intent intent = new Intent(context, GameMainActivity.class);
                 startActivity(intent);
             }
         });

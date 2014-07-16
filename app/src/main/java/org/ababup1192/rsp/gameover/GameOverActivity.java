@@ -1,4 +1,4 @@
-package org.ababup1192.rsp;
+package org.ababup1192.rsp.gameover;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,7 +12,11 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class GameOver extends ActionBarActivity {
+import org.ababup1192.rsp.R;
+import org.ababup1192.rsp.main.GameMainActivity;
+import org.ababup1192.rsp.title.TitleActivity;
+
+public class GameOverActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +57,7 @@ public class GameOver extends ActionBarActivity {
         continueText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(context, GameMain.class);
+                Intent intent = new Intent(context, GameMainActivity.class);
                 startActivity(intent);
             }
         });
@@ -61,7 +65,7 @@ public class GameOver extends ActionBarActivity {
         endText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(context, Title.class);
+                Intent intent = new Intent(context, TitleActivity.class);
                 startActivity(intent);
             }
         });

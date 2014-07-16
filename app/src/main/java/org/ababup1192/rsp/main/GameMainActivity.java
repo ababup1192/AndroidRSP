@@ -1,4 +1,4 @@
-package org.ababup1192.rsp;
+package org.ababup1192.rsp.main;
 
 import android.content.Context;
 import android.content.Intent;
@@ -14,12 +14,20 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.Random;
+import org.ababup1192.rsp.R;
+import org.ababup1192.rsp.gameover.GameOverActivity;
+
+import static org.ababup1192.rsp.main.RSPGame.GAME_STATE;
+import static org.ababup1192.rsp.main.RSPGame.HAND;
+import static org.ababup1192.rsp.main.RSPGame.JUDGE;
 
 
-public class GameMain extends ActionBarActivity {
+public class GameMainActivity extends ActionBarActivity {
 
-    // Activity Resource
+    private String defaultScoreText;
+
+    private RSPGame rspGame;
+
     private Context context;
     private LinearLayout restLayout;
     private LinearLayout battleLayout;
@@ -29,32 +37,13 @@ public class GameMain extends ActionBarActivity {
     private ImageView scissorsImage;
     private ImageView paperImage;
 
-    // Game Resources
-    private enum GAME_STATE {
-        MY_TURN, RESULT, END
-    }
-
-    private enum HAND {
-        ROCK, SCISSORS, PAPER
-    }
-
-    private enum JUDGE {
-        WIN, LOSE, DRAW
-    }
-
-    private int rest = 3;
-    private Integer score = 0;
-    private String defaultScoreText;
-    private GAME_STATE gameState = GAME_STATE.MY_TURN;
-    private HAND myHand;
-    private HAND enemyHand;
-    private JUDGE judgeStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game_main);
 
+        // ゲーム初期化
         init();
     }
 
@@ -72,16 +61,15 @@ public class GameMain extends ActionBarActivity {
         scissorsImage = (ImageView) findViewById(R.id.image_scissors);
         paperImage = (ImageView) findViewById(R.id.image_paper);
 
-        // ゲーム状態の管理
+        // ゲームの開始
+        rspGame = new RSPGame(this);
 
         // スコアボード初期化
         setScore();
 
-        // ゲーム状態の初期化
-        gameState = GAME_STATE.MY_TURN;
-
         // 残機の初期化
         setRestImages();
+
         // じゃんけんボタンの初期化
         setClickRSPImageEvent();
 
@@ -93,13 +81,13 @@ public class GameMain extends ActionBarActivity {
         switch (event.getAction()) {
             // 画面をタップして離した時にイベント取得
             case MotionEvent.ACTION_UP:
-                if (gameState == GAME_STATE.RESULT) {
+                if (rspGame.getGameState() == GAME_STATE.RESULT) {
                     battleLayout.removeAllViews();
                     setRSPImages();
-                    gameState = GAME_STATE.MY_TURN;
-                } else if (gameState == GAME_STATE.END) {
-                    Intent intent = new Intent(context, GameOver.class);
-                    intent.putExtra("score", score);
+                    rspGame.setGameState(GAME_STATE.MY_TURN);
+                } else if (rspGame.getGameState() == GAME_STATE.END) {
+                    Intent intent = new Intent(context, GameOverActivity.class);
+                    intent.putExtra("score", rspGame.getScore());
                     startActivity(intent);
                 }
                 break;
@@ -107,43 +95,13 @@ public class GameMain extends ActionBarActivity {
         return true;
     }
 
-    private void battle() {
-        long seed = System.currentTimeMillis(); // 現在時刻のミリ秒
-        Random random = new Random(seed);
-        enemyHand = HAND.values()[random.nextInt(3)];
-        judge(myHand.ordinal(), enemyHand.ordinal());
+    public void setScore() {
+        scoreText.setText(defaultScoreText + " " + rspGame.getScore());
     }
 
-    private void judge(int my, int enemy) {
-        int judge = (my - enemy + 3) % 3;
-        if (judge == 0) {
-            judgeStatus = JUDGE.DRAW;
-            showHand();
-        } else if (judge == 2) {
-            judgeStatus = JUDGE.WIN;
-            showHand();
-            score++;
-            setScore();
-        } else {
-            judgeStatus = JUDGE.LOSE;
-            showHand();
-            rest--;
-            setRestImages();
-        }
-        if (rest == 0) {
-            gameState = GAME_STATE.END;
-        } else {
-            gameState = GAME_STATE.RESULT;
-        }
-    }
-
-    private void setScore() {
-        scoreText.setText(defaultScoreText + " " + score);
-    }
-
-    private void setRestImages() {
+    public void setRestImages() {
         restLayout.removeAllViews();
-        for (int i = 0; i < rest; i++) {
+        for (int i = 0; i < rspGame.getRest(); i++) {
             ImageView smileImage = new ImageView(this);
             smileImage.setImageResource(R.drawable.smile);
             int whSize = (int) getResources().getDimension(R.dimen.smile_image_wh);
@@ -181,19 +139,19 @@ public class GameMain extends ActionBarActivity {
         rockImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (gameState == GAME_STATE.RESULT) {
+                if (rspGame.getGameState() == GAME_STATE.RESULT) {
                     battleLayout.removeAllViews();
                     setRSPImages();
                     setClickRSPImageEvent();
-                    gameState = GAME_STATE.MY_TURN;
-                } else if (gameState == GAME_STATE.END) {
-                    Intent intent = new Intent(context, GameOver.class);
-                    intent.putExtra("score", score);
+                    rspGame.setGameState(GAME_STATE.MY_TURN);
+                } else if (rspGame.getGameState() == GAME_STATE.END) {
+                    Intent intent = new Intent(context, GameOverActivity.class);
+                    intent.putExtra("score", rspGame.getScore());
                     startActivity(intent);
                 } else {
                     bottomHandsLayout.removeView(v);
-                    myHand = HAND.ROCK;
-                    battle();
+                    rspGame.setMyHand(HAND.ROCK);
+                    rspGame.battle();
                 }
             }
         });
@@ -201,19 +159,19 @@ public class GameMain extends ActionBarActivity {
         scissorsImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (gameState == GAME_STATE.RESULT) {
+                if (rspGame.getGameState() == GAME_STATE.RESULT) {
                     battleLayout.removeAllViews();
                     setRSPImages();
                     setClickRSPImageEvent();
-                    gameState = GAME_STATE.MY_TURN;
-                } else if (gameState == GAME_STATE.END) {
-                    Intent intent = new Intent(context, GameOver.class);
-                    intent.putExtra("score", score);
+                    rspGame.setGameState(GAME_STATE.MY_TURN);
+                } else if (rspGame.getGameState() == GAME_STATE.END) {
+                    Intent intent = new Intent(context, GameOverActivity.class);
+                    intent.putExtra("score", rspGame.getScore());
                     startActivity(intent);
                 } else {
                     bottomHandsLayout.removeView(v);
-                    myHand = HAND.SCISSORS;
-                    battle();
+                    rspGame.setMyHand(HAND.SCISSORS);
+                    rspGame.battle();
                 }
             }
         });
@@ -221,19 +179,19 @@ public class GameMain extends ActionBarActivity {
         paperImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (gameState == GAME_STATE.RESULT) {
+                if (rspGame.getGameState() == GAME_STATE.RESULT) {
                     battleLayout.removeAllViews();
                     setRSPImages();
                     setClickRSPImageEvent();
-                    gameState = GAME_STATE.MY_TURN;
-                } else if (gameState == GAME_STATE.END) {
-                    Intent intent = new Intent(context, GameOver.class);
-                    intent.putExtra("score", score);
+                    rspGame.setGameState(GAME_STATE.MY_TURN);
+                } else if (rspGame.getGameState() == GAME_STATE.END) {
+                    Intent intent = new Intent(context, GameOverActivity.class);
+                    intent.putExtra("score", rspGame.getScore());
                     startActivity(intent);
                 } else {
                     bottomHandsLayout.removeView(v);
-                    myHand = HAND.PAPER;
-                    battle();
+                    rspGame.setMyHand(HAND.PAPER);
+                    rspGame.battle();
                 }
             }
         });
@@ -241,10 +199,10 @@ public class GameMain extends ActionBarActivity {
 
     private TextView getJudgeText() {
         TextView judgeText = new TextView(this);
-        if (judgeStatus == JUDGE.WIN) {
+        if (rspGame.getJudgeStatus() == JUDGE.WIN) {
             judgeText.setText(getString(R.string.game_main_win_text));
             judgeText.setTextColor(Color.parseColor("#CC3300"));
-        } else if (judgeStatus == JUDGE.LOSE) {
+        } else if (rspGame.getJudgeStatus() == JUDGE.LOSE) {
             judgeText.setText(getString(R.string.game_main_lose_text));
             judgeText.setTextColor(Color.parseColor("#3333FF"));
         } else {
@@ -271,11 +229,11 @@ public class GameMain extends ActionBarActivity {
         return handImage;
     }
 
-    private void showHand() {
+    public void showHand() {
         battleLayout.removeAllViews();
-        battleLayout.addView(getHandView(enemyHand));
+        battleLayout.addView(getHandView(rspGame.getEnemyHand()));
         battleLayout.addView(getJudgeText());
-        battleLayout.addView(getHandView(myHand));
+        battleLayout.addView(getHandView(rspGame.getMyHand()));
     }
 
     @Override
