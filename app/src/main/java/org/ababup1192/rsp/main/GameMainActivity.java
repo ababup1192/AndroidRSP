@@ -209,7 +209,7 @@ public class GameMainActivity extends ActionBarActivity {
         return handImage;
     }
 
-    public void showHand() {
+    public void showResult() {
         battleLayout.removeAllViews();
         battleLayout.addView(getHandView(rspGame.getEnemyHand()));
         battleLayout.addView(getJudgeText());

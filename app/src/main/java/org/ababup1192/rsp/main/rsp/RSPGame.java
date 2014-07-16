@@ -78,15 +78,15 @@ public class RSPGame {
         int judge = (my - enemy + 3) % 3;
         if (judge == 0) {
             judgeStatus = JUDGE.DRAW;
-            gameMainActivity.showHand();
+            gameMainActivity.showResult();
         } else if (judge == 2) {
             judgeStatus = JUDGE.WIN;
-            gameMainActivity.showHand();
+            gameMainActivity.showResult();
             score++;
             gameMainActivity.setScore();
         } else {
             judgeStatus = JUDGE.LOSE;
-            gameMainActivity.showHand();
+            gameMainActivity.showResult();
             rest--;
             gameMainActivity.setRestImages();
         }
