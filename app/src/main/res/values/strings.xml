@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">じゃんけんぽん！</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- Global -->
+    <!-- Global Score -->
+    <string name="score">スコア : </string>
+    <string name="high_score">ハイスコア : </string>
+
+    <!-- Global Image description -->
+    <string name="image_smile">smile</string>
+    <string name="image_rock">rock</string>
+    <string name="image_scissors">scissors</string>
+    <string name="image_paper">paper</string>
+
+    <!-- Title -->
+    <string name="title_text1">じゃんけん</string>
+    <string name="title_text2">ポン！！</string>
+    <string name="title_start_button">Start</string>
+
+    <!-- Game Main -->
+    <string name="game_main_text1">じゃーんけーん…</string>
+    <string name="game_main_win_text">勝った！</string>
+    <string name="game_main_lose_text">負けた…</string>
+    <string name="game_main_draw_text">引き分け</string>
+    <string name="title_activity_game_over">GameOver</string>
+    <string name="hello_world">Hello world!</string>
+
+    <!-- Game Over -->
+    <string name="game_over_text1">しゅーりょー</string>
+    <string name="game_over_text2">スコア</string>
+    <string name="game_over_high_score">ハイスコア!!</string>
+    <string name="game_over_continue">つづける</string>
+    <string name="game_over_end">おわる</string>
+
+</resources>
