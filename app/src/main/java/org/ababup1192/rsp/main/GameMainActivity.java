@@ -16,10 +16,17 @@ import android.widget.TextView;
 
 import org.ababup1192.rsp.R;
 import org.ababup1192.rsp.gameover.GameOverActivity;
+import org.ababup1192.rsp.main.rsp.RSPGame;
+import org.ababup1192.rsp.main.rsp.hand.GameState;
+import org.ababup1192.rsp.main.rsp.hand.PaperImageClickState;
+import org.ababup1192.rsp.main.rsp.hand.RockImageClickState;
+import org.ababup1192.rsp.main.rsp.hand.ScissorsImageClickState;
+import org.ababup1192.rsp.main.rsp.hand.StateSelector;
 
-import static org.ababup1192.rsp.main.RSPGame.GAME_STATE;
-import static org.ababup1192.rsp.main.RSPGame.HAND;
-import static org.ababup1192.rsp.main.RSPGame.JUDGE;
+import static org.ababup1192.rsp.main.rsp.RSPGame.GAME_STATE;
+import static org.ababup1192.rsp.main.rsp.RSPGame.GAME_STATE.RESULT;
+import static org.ababup1192.rsp.main.rsp.RSPGame.HAND;
+import static org.ababup1192.rsp.main.rsp.RSPGame.JUDGE;
 
 
 public class GameMainActivity extends ActionBarActivity {
@@ -27,7 +34,7 @@ public class GameMainActivity extends ActionBarActivity {
     private String defaultScoreText;
 
     private RSPGame rspGame;
-
+    private GameMainActivity gameMainActivity;
     private Context context;
     private LinearLayout restLayout;
     private LinearLayout battleLayout;
@@ -50,6 +57,7 @@ public class GameMainActivity extends ActionBarActivity {
     private void init() {
         // Contextの取得
         context = this;
+        gameMainActivity = this;
 
         // レイアウトリソースの束縛
         restLayout = (LinearLayout) findViewById(R.id.layout_rest_images);
@@ -63,7 +71,6 @@ public class GameMainActivity extends ActionBarActivity {
 
         // ゲームの開始
         rspGame = new RSPGame(this);
-
         // スコアボード初期化
         setScore();
 
@@ -76,12 +83,21 @@ public class GameMainActivity extends ActionBarActivity {
     }
 
 
+    public LinearLayout getBattleLayout() {
+        return battleLayout;
+    }
+
+    public LinearLayout getBottomHandsLayout() {
+        return bottomHandsLayout;
+    }
+
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction()) {
             // 画面をタップして離した時にイベント取得
             case MotionEvent.ACTION_UP:
-                if (rspGame.getGameState() == GAME_STATE.RESULT) {
+                if (rspGame.getGameState() == RESULT) {
                     battleLayout.removeAllViews();
                     setRSPImages();
                     rspGame.setGameState(GAME_STATE.MY_TURN);
@@ -111,7 +127,7 @@ public class GameMainActivity extends ActionBarActivity {
         }
     }
 
-    private void setRSPImages() {
+    public void setRSPImages() {
         bottomHandsLayout.removeAllViews();
         rockImage = new ImageView(this);
         scissorsImage = new ImageView(this);
@@ -135,64 +151,28 @@ public class GameMainActivity extends ActionBarActivity {
         setClickRSPImageEvent();
     }
 
-    private void setClickRSPImageEvent() {
+    public void setClickRSPImageEvent() {
         rockImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (rspGame.getGameState() == GAME_STATE.RESULT) {
-                    battleLayout.removeAllViews();
-                    setRSPImages();
-                    setClickRSPImageEvent();
-                    rspGame.setGameState(GAME_STATE.MY_TURN);
-                } else if (rspGame.getGameState() == GAME_STATE.END) {
-                    Intent intent = new Intent(context, GameOverActivity.class);
-                    intent.putExtra("score", rspGame.getScore());
-                    startActivity(intent);
-                } else {
-                    bottomHandsLayout.removeView(v);
-                    rspGame.setMyHand(HAND.ROCK);
-                    rspGame.battle();
-                }
+                GameState state = new RockImageClickState(gameMainActivity, rspGame, v);
+                new StateSelector(state).selectState(rspGame.getGameState());
             }
         });
 
         scissorsImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (rspGame.getGameState() == GAME_STATE.RESULT) {
-                    battleLayout.removeAllViews();
-                    setRSPImages();
-                    setClickRSPImageEvent();
-                    rspGame.setGameState(GAME_STATE.MY_TURN);
-                } else if (rspGame.getGameState() == GAME_STATE.END) {
-                    Intent intent = new Intent(context, GameOverActivity.class);
-                    intent.putExtra("score", rspGame.getScore());
-                    startActivity(intent);
-                } else {
-                    bottomHandsLayout.removeView(v);
-                    rspGame.setMyHand(HAND.SCISSORS);
-                    rspGame.battle();
-                }
+                GameState state = new ScissorsImageClickState(gameMainActivity, rspGame, v);
+                new StateSelector(state).selectState(rspGame.getGameState());
             }
         });
 
         paperImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (rspGame.getGameState() == GAME_STATE.RESULT) {
-                    battleLayout.removeAllViews();
-                    setRSPImages();
-                    setClickRSPImageEvent();
-                    rspGame.setGameState(GAME_STATE.MY_TURN);
-                } else if (rspGame.getGameState() == GAME_STATE.END) {
-                    Intent intent = new Intent(context, GameOverActivity.class);
-                    intent.putExtra("score", rspGame.getScore());
-                    startActivity(intent);
-                } else {
-                    bottomHandsLayout.removeView(v);
-                    rspGame.setMyHand(HAND.PAPER);
-                    rspGame.battle();
-                }
+                GameState state = new PaperImageClickState(gameMainActivity, rspGame, v);
+                new StateSelector(state).selectState(rspGame.getGameState());
             }
         });
     }

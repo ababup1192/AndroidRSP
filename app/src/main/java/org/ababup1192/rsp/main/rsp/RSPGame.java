@@ -1,4 +1,6 @@
-package org.ababup1192.rsp.main;
+package org.ababup1192.rsp.main.rsp;
+
+import org.ababup1192.rsp.main.GameMainActivity;
 
 import java.util.Random;
 
