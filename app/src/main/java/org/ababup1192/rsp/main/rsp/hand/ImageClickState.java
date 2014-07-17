@@ -34,7 +34,7 @@ public abstract class ImageClickState implements GameState {
     @Override
     public void behaveResult() {
         gameMainActivity.getBattleLayout().removeAllViews();
-        gameMainActivity.setRSPImages();
+        gameMainActivity.showRSPImages();
         gameMainActivity.setClickRSPImageEvent();
         rspGame.setGameState(RSPGame.GAME_STATE.MY_TURN);
     }
