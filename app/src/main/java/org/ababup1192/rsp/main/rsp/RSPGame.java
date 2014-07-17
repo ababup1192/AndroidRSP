@@ -1,10 +1,10 @@
 package org.ababup1192.rsp.main.rsp;
 
-import org.ababup1192.rsp.main.GameMainActivity;
+import org.ababup1192.rsp.main.Observer;
 
 import java.util.Random;
 
-public class RSPGame {
+public class RSPGame extends Subject {
 
     // Game Resources
     public static enum GAME_STATE {
@@ -26,13 +26,11 @@ public class RSPGame {
     private HAND enemyHand;
     private JUDGE judgeStatus;
 
-    private GameMainActivity gameMainActivity;
-
-    public RSPGame(GameMainActivity gameMainActivity) {
+    public RSPGame(Observer gameMainActivity) {
         rest = 3;
         score = 0;
         gameState = GAME_STATE.MY_TURN;
-        this.gameMainActivity = gameMainActivity;
+        addObserver(gameMainActivity);
     }
 
     public void setGameState(GAME_STATE gameState) {
@@ -78,17 +76,15 @@ public class RSPGame {
         int judge = (my - enemy + 3) % 3;
         if (judge == 0) {
             judgeStatus = JUDGE.DRAW;
-            gameMainActivity.showResult();
+            notifyObservers();
         } else if (judge == 2) {
             judgeStatus = JUDGE.WIN;
             score++;
-            gameMainActivity.showResult();
-            gameMainActivity.showScore();
+            notifyObservers();
         } else {
             judgeStatus = JUDGE.LOSE;
             rest--;
-            gameMainActivity.showResult();
-            gameMainActivity.showRestImages();
+            notifyObservers();
         }
         if (rest == 0) {
             gameState = GAME_STATE.END;
@@ -96,6 +92,5 @@ public class RSPGame {
             gameState = GAME_STATE.RESULT;
         }
     }
-
 
 }

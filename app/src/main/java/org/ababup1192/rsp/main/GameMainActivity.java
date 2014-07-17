@@ -24,7 +24,7 @@ import org.ababup1192.rsp.main.util.UIHelper;
 import org.ababup1192.rsp.util.LayoutHelper;
 
 
-public class GameMainActivity extends ActionBarActivity {
+public class GameMainActivity extends ActionBarActivity implements Observer {
 
     private String defaultScoreText;
 
@@ -205,6 +205,13 @@ public class GameMainActivity extends ActionBarActivity {
     }
 
     @Override
+    public void update() {
+        showResult();
+        showScore();
+        showRestImages();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.title, menu);
@@ -222,4 +229,6 @@ public class GameMainActivity extends ActionBarActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+
 }
