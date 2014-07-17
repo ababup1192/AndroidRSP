@@ -22,6 +22,7 @@ import org.ababup1192.rsp.main.hand.ScissorsImageClickState;
 import org.ababup1192.rsp.main.hand.StateSelector;
 import org.ababup1192.rsp.main.util.UIHelper;
 import org.ababup1192.rsp.util.LayoutHelper;
+import org.ababup1192.rsp.util.pattern.Observer;
 
 
 public class GameMainActivity extends ActionBarActivity implements Observer {

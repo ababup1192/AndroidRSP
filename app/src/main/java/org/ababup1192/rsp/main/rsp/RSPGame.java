@@ -1,6 +1,7 @@
 package org.ababup1192.rsp.main.rsp;
 
-import org.ababup1192.rsp.main.Observer;
+import org.ababup1192.rsp.util.pattern.Observer;
+import org.ababup1192.rsp.util.pattern.Subject;
 
 import java.util.Random;
 
