@@ -2,14 +2,12 @@ package org.ababup1192.rsp.main;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -22,11 +20,10 @@ import org.ababup1192.rsp.main.rsp.hand.PaperImageClickState;
 import org.ababup1192.rsp.main.rsp.hand.RockImageClickState;
 import org.ababup1192.rsp.main.rsp.hand.ScissorsImageClickState;
 import org.ababup1192.rsp.main.rsp.hand.StateSelector;
+import org.ababup1192.rsp.main.rsp.util.UIHelper;
+import org.ababup1192.rsp.util.LayoutHelper;
 
-import static org.ababup1192.rsp.main.rsp.RSPGame.GAME_STATE;
 import static org.ababup1192.rsp.main.rsp.RSPGame.GAME_STATE.RESULT;
-import static org.ababup1192.rsp.main.rsp.RSPGame.HAND;
-import static org.ababup1192.rsp.main.rsp.RSPGame.JUDGE;
 
 
 public class GameMainActivity extends ActionBarActivity {
@@ -54,6 +51,25 @@ public class GameMainActivity extends ActionBarActivity {
         init();
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        switch (event.getAction()) {
+            // 画面をタップして離した時にイベント取得
+            case MotionEvent.ACTION_UP:
+                if (rspGame.getGameState() == RESULT) {
+                    battleLayout.removeAllViews();
+                    showRSPImages();
+                    rspGame.setGameState(RSPGame.GAME_STATE.MY_TURN);
+                } else if (rspGame.getGameState() == RSPGame.GAME_STATE.END) {
+                    Intent intent = new Intent(context, GameOverActivity.class);
+                    intent.putExtra("score", rspGame.getScore());
+                    startActivity(intent);
+                }
+                break;
+        }
+        return true;
+    }
+
     private void init() {
         // Contextの取得
         context = this;
@@ -69,20 +85,23 @@ public class GameMainActivity extends ActionBarActivity {
         scissorsImage = (ImageView) findViewById(R.id.image_scissors);
         paperImage = (ImageView) findViewById(R.id.image_paper);
 
+        gameInit();
+    }
+
+    /**
+     * ゲームの初期化, UIの初期化など
+     */
+    private void gameInit() {
         // ゲームの開始
         rspGame = new RSPGame(this);
-        // スコアボード初期化
-        setScore();
 
-        // 残機の初期化
-        setRestImages();
-
-        // じゃんけんボタンの初期化
+        showScore();
+        showRestImages();
         setClickRSPImageEvent();
-
     }
 
 
+    // レイアウトの外部公開
     public LinearLayout getBattleLayout() {
         return battleLayout;
     }
@@ -91,43 +110,47 @@ public class GameMainActivity extends ActionBarActivity {
         return bottomHandsLayout;
     }
 
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        switch (event.getAction()) {
-            // 画面をタップして離した時にイベント取得
-            case MotionEvent.ACTION_UP:
-                if (rspGame.getGameState() == RESULT) {
-                    battleLayout.removeAllViews();
-                    setRSPImages();
-                    rspGame.setGameState(GAME_STATE.MY_TURN);
-                } else if (rspGame.getGameState() == GAME_STATE.END) {
-                    Intent intent = new Intent(context, GameOverActivity.class);
-                    intent.putExtra("score", rspGame.getScore());
-                    startActivity(intent);
-                }
-                break;
-        }
-        return true;
-    }
-
-    public void setScore() {
-        scoreText.setText(defaultScoreText + " " + rspGame.getScore());
-    }
-
-    public void setRestImages() {
-        restLayout.removeAllViews();
-        for (int i = 0; i < rspGame.getRest(); i++) {
-            ImageView smileImage = new ImageView(this);
-            smileImage.setImageResource(R.drawable.smile);
-            int whSize = (int) getResources().getDimension(R.dimen.smile_image_wh);
-            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(whSize, whSize);
-            smileImage.setLayoutParams(layoutParams);
-            restLayout.addView(smileImage);
+    /**
+     * スコアの表示
+     */
+    public void showScore() {
+        if (rspGame != null) {
+            scoreText.setText(defaultScoreText + " " + rspGame.getScore());
         }
     }
 
-    public void setRSPImages() {
+    /**
+     * 残機の表示
+     */
+    public void showRestImages() {
+        if (rspGame != null) {
+            restLayout.removeAllViews();
+            for (int i = 0; i < rspGame.getRest(); i++) {
+                ImageView smileImage = new ImageView(this);
+                smileImage.setImageResource(R.drawable.smile);
+                int whSize = (int) getResources().getDimension(R.dimen.smile_image_wh);
+                LayoutHelper.setLinearLayoutParams(smileImage, whSize, whSize);
+                restLayout.addView(smileImage);
+            }
+        }
+    }
+
+
+    /**
+     * じゃんけん結果の表示
+     */
+    public void showResult() {
+        battleLayout.removeAllViews();
+        battleLayout.addView(UIHelper.getHandView(rspGame.getEnemyHand(), rspGame, this));
+        battleLayout.addView(UIHelper.getJudgeText(rspGame, this));
+        battleLayout.addView(UIHelper.getHandView(rspGame.getMyHand(), rspGame, this));
+    }
+
+
+    /**
+     * 画面下部のグーチョキパーボタンの生成・表示
+     */
+    public void showRSPImages() {
         bottomHandsLayout.removeAllViews();
         rockImage = new ImageView(this);
         scissorsImage = new ImageView(this);
@@ -137,12 +160,9 @@ public class GameMainActivity extends ActionBarActivity {
         scissorsImage.setImageResource(R.drawable.scissors);
         paperImage.setImageResource(R.drawable.paper);
         int whSize = (int) getResources().getDimension(R.dimen.hand_image_wh);
-        LinearLayout.LayoutParams rockLayoutParams = new LinearLayout.LayoutParams(whSize, whSize);
-        LinearLayout.LayoutParams spLayoutParams = new LinearLayout.LayoutParams(whSize, whSize);
-        spLayoutParams.setMargins((int) getResources().getDimension(R.dimen.rsp_images_margin), 0, 0, 0);
-        rockImage.setLayoutParams(rockLayoutParams);
-        scissorsImage.setLayoutParams(spLayoutParams);
-        paperImage.setLayoutParams(spLayoutParams);
+        LayoutHelper.setLinearLayoutParams(rockImage, whSize);
+        LayoutHelper.setLinearLayoutParams(scissorsImage, whSize, (int) getResources().getDimension(R.dimen.rsp_images_margin), 0, 0, 0);
+        LayoutHelper.setLinearLayoutParams(paperImage, whSize, (int) getResources().getDimension(R.dimen.rsp_images_margin), 0, 0, 0);
 
         bottomHandsLayout.addView(rockImage);
         bottomHandsLayout.addView(scissorsImage);
@@ -151,69 +171,36 @@ public class GameMainActivity extends ActionBarActivity {
         setClickRSPImageEvent();
     }
 
+    /**
+     * 画面下部のグーチョキパーボタンのイベント設置
+     */
     public void setClickRSPImageEvent() {
-        rockImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                GameState state = new RockImageClickState(gameMainActivity, rspGame, v);
-                new StateSelector(state).selectState(rspGame.getGameState());
-            }
-        });
+        if (rockImage != null && scissorsImage != null && paperImage != null) {
 
-        scissorsImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                GameState state = new ScissorsImageClickState(gameMainActivity, rspGame, v);
-                new StateSelector(state).selectState(rspGame.getGameState());
-            }
-        });
+            rockImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    GameState state = new RockImageClickState(gameMainActivity, rspGame, v);
+                    new StateSelector(state).selectState(rspGame.getGameState());
+                }
+            });
 
-        paperImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                GameState state = new PaperImageClickState(gameMainActivity, rspGame, v);
-                new StateSelector(state).selectState(rspGame.getGameState());
-            }
-        });
-    }
+            scissorsImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    GameState state = new ScissorsImageClickState(gameMainActivity, rspGame, v);
+                    new StateSelector(state).selectState(rspGame.getGameState());
+                }
+            });
 
-    private TextView getJudgeText() {
-        TextView judgeText = new TextView(this);
-        if (rspGame.getJudgeStatus() == JUDGE.WIN) {
-            judgeText.setText(getString(R.string.game_main_win_text));
-            judgeText.setTextColor(Color.parseColor("#CC3300"));
-        } else if (rspGame.getJudgeStatus() == JUDGE.LOSE) {
-            judgeText.setText(getString(R.string.game_main_lose_text));
-            judgeText.setTextColor(Color.parseColor("#3333FF"));
-        } else {
-            judgeText.setText(getString(R.string.game_main_draw_text));
-            judgeText.setTextColor(Color.parseColor("#BBBBBB"));
+            paperImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    GameState state = new PaperImageClickState(gameMainActivity, rspGame, v);
+                    new StateSelector(state).selectState(rspGame.getGameState());
+                }
+            });
         }
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        judgeText.setLayoutParams(layoutParams);
-        return judgeText;
-    }
-
-    private ImageView getHandView(HAND hand) {
-        ImageView handImage = new ImageView(this);
-        if (hand == HAND.ROCK) {
-            handImage.setImageResource(R.drawable.rock);
-        } else if (hand == HAND.SCISSORS) {
-            handImage.setImageResource(R.drawable.scissors);
-        } else {
-            handImage.setImageResource(R.drawable.paper);
-        }
-        int whSize = (int) getResources().getDimension(R.dimen.hand_image_wh);
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(whSize, whSize);
-        handImage.setLayoutParams(layoutParams);
-        return handImage;
-    }
-
-    public void showResult() {
-        battleLayout.removeAllViews();
-        battleLayout.addView(getHandView(rspGame.getEnemyHand()));
-        battleLayout.addView(getJudgeText());
-        battleLayout.addView(getHandView(rspGame.getMyHand()));
     }
 
     @Override

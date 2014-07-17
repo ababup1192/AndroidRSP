@@ -83,12 +83,12 @@ public class RSPGame {
             judgeStatus = JUDGE.WIN;
             gameMainActivity.showResult();
             score++;
-            gameMainActivity.setScore();
+            gameMainActivity.showScore();
         } else {
             judgeStatus = JUDGE.LOSE;
             gameMainActivity.showResult();
             rest--;
-            gameMainActivity.setRestImages();
+            gameMainActivity.showRestImages();
         }
         if (rest == 0) {
             gameState = GAME_STATE.END;
