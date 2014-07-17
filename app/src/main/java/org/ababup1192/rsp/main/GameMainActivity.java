@@ -15,15 +15,13 @@ import android.widget.TextView;
 import org.ababup1192.rsp.R;
 import org.ababup1192.rsp.gameover.GameOverActivity;
 import org.ababup1192.rsp.main.rsp.RSPGame;
-import org.ababup1192.rsp.main.rsp.hand.GameState;
-import org.ababup1192.rsp.main.rsp.hand.PaperImageClickState;
-import org.ababup1192.rsp.main.rsp.hand.RockImageClickState;
-import org.ababup1192.rsp.main.rsp.hand.ScissorsImageClickState;
-import org.ababup1192.rsp.main.rsp.hand.StateSelector;
-import org.ababup1192.rsp.main.rsp.util.UIHelper;
+import org.ababup1192.rsp.main.hand.GameState;
+import org.ababup1192.rsp.main.hand.PaperImageClickState;
+import org.ababup1192.rsp.main.hand.RockImageClickState;
+import org.ababup1192.rsp.main.hand.ScissorsImageClickState;
+import org.ababup1192.rsp.main.hand.StateSelector;
+import org.ababup1192.rsp.main.util.UIHelper;
 import org.ababup1192.rsp.util.LayoutHelper;
-
-import static org.ababup1192.rsp.main.rsp.RSPGame.GAME_STATE.RESULT;
 
 
 public class GameMainActivity extends ActionBarActivity {
@@ -56,14 +54,17 @@ public class GameMainActivity extends ActionBarActivity {
         switch (event.getAction()) {
             // 画面をタップして離した時にイベント取得
             case MotionEvent.ACTION_UP:
-                if (rspGame.getGameState() == RESULT) {
-                    battleLayout.removeAllViews();
-                    showRSPImages();
-                    rspGame.setGameState(RSPGame.GAME_STATE.MY_TURN);
-                } else if (rspGame.getGameState() == RSPGame.GAME_STATE.END) {
-                    Intent intent = new Intent(context, GameOverActivity.class);
-                    intent.putExtra("score", rspGame.getScore());
-                    startActivity(intent);
+                switch (rspGame.getGameState()) {
+                    case RESULT:
+                        battleLayout.removeAllViews();
+                        showRSPImages();
+                        rspGame.setGameState(RSPGame.GAME_STATE.MY_TURN);
+                        break;
+                    case END:
+                        Intent intent = new Intent(context, GameOverActivity.class);
+                        intent.putExtra("score", rspGame.getScore());
+                        startActivity(intent);
+                        break;
                 }
                 break;
         }

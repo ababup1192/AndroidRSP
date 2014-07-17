@@ -1,4 +1,4 @@
-package org.ababup1192.rsp.main.rsp.hand;
+package org.ababup1192.rsp.main.hand;
 
 public interface GameState {
 

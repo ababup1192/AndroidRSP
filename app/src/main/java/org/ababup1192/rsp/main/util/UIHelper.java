@@ -1,4 +1,4 @@
-package org.ababup1192.rsp.main.rsp.util;
+package org.ababup1192.rsp.main.util;
 
 import android.content.Context;
 import android.graphics.Color;
